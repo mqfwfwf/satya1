@@ -1,0 +1,101 @@
+{
+  "name": "Project Satya - AI Misinformation Detection",
+  "short_name": "Satya",
+  "description": "AI-powered tool for combating misinformation in India - verify content, detect deepfakes, and learn media literacy",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDF7E7",
+  "theme_color": "#E5A663",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E5A663'%3E%3Cpath d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["news", "utilities", "education"],
+  "lang": "en-IN",
+  "scope": "/",
+  "id": "/",
+  "prefer_related_applications": false,
+  "shortcuts": [
+    {
+      "name": "Quick Verify",
+      "short_name": "Verify",
+      "description": "Quickly verify content for misinformation",
+      "url": "/?quick=verify",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View misinformation trends and analytics",
+      "url": "/dashboard",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Learn",
+      "short_name": "Learn", 
+      "description": "Media literacy training and mini-games",
+      "url": "/learn",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Upload Media",
+      "short_name": "Upload",
+      "description": "Upload image or video for analysis",
+      "url": "/?action=upload",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/?action=analyze",
+      "accept": {
+        "image/*": [".jpg", ".jpeg", ".png", ".webp", ".gif"],
+        "video/*": [".mp4", ".webm", ".mov", ".avi"]
+      }
+    }
+  ],
+  "share_target": {
+    "action": "/?action=share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [
+        {
+          "name": "media",
+          "accept": ["image/*", "video/*"]
+        }
+      ]
+    }
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+satya",
+      "url": "/?verify=%s"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}

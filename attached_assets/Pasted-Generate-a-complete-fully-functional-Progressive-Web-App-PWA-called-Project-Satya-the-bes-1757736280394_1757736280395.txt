@@ -1,0 +1,151 @@
+Generate a complete, fully functional Progressive Web App (PWA) called Project Satya (सत्य), the best AI-powered tool for combating misinformation in India in 2025, built entirely in Replit (2025 free tier). It’s a privacy-first, offline-capable "Digital Immune System" that handles ANY URL or content from social media (X/Twitter, Instagram, Facebook), news outlets, or fake sources. For any input, scrape content, extract claims, search/understand real news, verify truth using 2025 best practices (Gemini API priority for generative search/browsing, OpenAI GPT-4o-mini fallback with browsing tools), run checks against trusted sources (Google Fact Check Explorer API, ClaimBuster, NewsGuard ratings, Sensity AI for deepfakes, InVID Verification for social media), and synthesize accurate results. Target user: Rohan, a 28-year-old Bengaluru developer. Deploy on Replit (backend) and Vercel (frontend, or Replit if Vercel fails). Prioritize Gemini API (my API key) for all AI/search; fallback to OpenAI (my API key) if Gemini fails. Ensure zero-cost using free tiers (Replit, Vercel, Supabase, Pinecone, Upstash, Hugging Face, Google Fact Check Explorer, Sensity AI trial). Generate all code, configs, and a README with setup/deployment steps. Optimize for a 14-day hackathon (deadline: September 27, 2025).
+
+### Core Vision (Best in 2025)
+Satya is the top misinformation tool in 2025, surpassing GPTZero, Sensity AI, and Full Fact AI by integrating real-time verification for social media/news. "Trust Triangle":
+- DETECT: Multi-layered AI (facts, fallacies, tone, sources, deepfakes) using 2025 APIs.
+- EXPLAIN: Shareable "Credibility Report Card" with real news links/proof.
+- EDUCATE: 60-second mini-games for literacy.
+Features: Handles X/Instagram/Facebook (scrape posts, verify via InVID/Sensity), news (Fact Check Explorer), fakes (cross-search real news). Multilingual (English/Hindi toggle), offline-first, low-end support (2GB RAM, 480p), no sign-up (optional dashboard), ad-free.
+
+### Tech Stack (Zero-Cost, 2025 Best)
+- **Frontend**: Next.js 15+ (App Router), Tailwind CSS, TensorFlow.js. Deploy on Vercel or Replit (Node.js).
+- **Backend**: FastAPI (Python 3.12), hosted on Replit (public URL).
+- **AI/ML/Verification (2025 Best)**:
+  - Primary: Gemini 1.5 Flash (text/search) and Pro Vision (multimodal, my API key, free tier ~1,500 text/day, ~100 multimodal/day; use generative search for real news lookup).
+  - Fallback: OpenAI GPT-4o-mini (my API key, ~30K-50K tokens; use browsing tool for snippets/search).
+  - Embeddings: Hugging Face (free, Sentence-BERT).
+  - Vector Search: Pinecone (free, 100K vectors).
+  - Fact-Checking: Google Fact Check Explorer API (free, ClaimReview markup), ClaimBuster API (free for claims).
+  - Deepfakes/Social Media: Sensity AI API (free trial for deepfakes), InVID Verification (free plugin for X/Instagram/Facebook posts).
+  - On-Device: TensorFlow.js (quantized MiniLM-L6-v2).
+- **Data**: Supabase (free, 500MB Postgres, 1GB storage) for quizzes, reports, sync. Upstash Redis (free, 10K commands/day) for caching.
+- **Storage**: IndexedDB for 10K viral fakes (JSON, sync via Supabase).
+- **Configs**: Replit Secrets (.env): GEMINI_API_KEY, OPENAI_API_KEY, HUGGINGFACE_API_KEY, PINECONE_API_KEY, SUPABASE_URL, SUPABASE_KEY, UPSTASH_REDIS_URL, SENSITY_API_KEY (trial), INVID_API_KEY (free).
+
+### Architecture: 3-Tier Intelligence Funnel (2025 Best Verification)
+For ANY URL/content (X post, Instagram image, Facebook video, news article, fake site):
+1. **Tier 0 (On-Device, Offline)**:
+   - Input: Text/URL/image/video via PWA form (scrape URL if needed via local cache).
+   - Process: Quantized Sentence-BERT (TensorFlow.js) generates embedding, checks IndexedDB (10K fakes JSON: {id, embedding, metadata: {score, status, summary, details}}).
+   - Output: If match (cosine similarity > 0.8), show cached Report Card.
+   - Sync: Daily Supabase JSON deltas (<1MB).
+   - Libs: tensorflowjs, idb-keyval.
+
+2. **Tier 1 (Cloud Semantic Sync)**:
+   - If no Tier 0 match and online, send embedding to FastAPI /analyze.
+   - FastAPI: Query Pinecone ("satya-fakes", 384D, top-5 matches).
+   - Output: If match (score > 0.8), return metadata JSON.
+   - Cache: Upstash Redis (24h TTL).
+
+3. **Tier 2 (Cloud Deep Analysis, 2025 Best)**:
+   - For novel content/URLs, FastAPI pipeline:
+     - Ingestion: Scrape URL (BeautifulSoup for text/images, OpenCV for video keyframes; for social media, use oEmbed API for X/Instagram/Facebook if available, fallback to scraping).
+     - Extract Claims: Gemini 1.5 Flash (or GPT-4o-mini) prompt: "Extract key claims from this content/URL: [scraped text]. List 3-5 verifiable claims."
+     - Verification (try Gemini first, fallback OpenAI):
+       - For each claim, use Gemini generative search (or OpenAI browsing tool): "Search for real news on [claim]. Verify truth using trusted sources (Google Fact Check Explorer, ClaimBuster, NewsGuard). Output JSON: {claim: str, verdict: 'True'|'False'|'Mixed', evidence: str, sources: [{url: str, source: str}]}."
+       - Social Media (X/Instagram/Facebook): Use InVID Verification API (free) for post metadata (date, origin, edits); Sensity AI (free trial) for deepfake detection on images/videos.
+       - News/Fake Sources: Cross-check with Google Fact Check Explorer API (free ClaimReview markup), Hoaxy for spread, TinEye for reverse image.
+       - Deepfakes: Sensity AI API for images/videos (e.g., "Detect AI artifacts").
+       - Overall: Gemini 1.5 Flash (or GPT-4o-mini) synthesizes: "Analyze fallacies (fear-mongering), emotional tone (urgency 0-10), source reliability (SRI: domain age, author). Combine with verifications. Output JSON: {score: int (0-100), status: str ('Extremely Misleading'), summary: str, details: [{section: 'Source Analysis'|'Emotional Tone'|'Fact-Check'|'Deepfake Check', status: 'False'|'Caution', finding: str, proof: [{url: str, source: str}]}]}. Temperature 0.1, JSON mode."
+     - Cache: Supabase (report_cards table with claims/verifications).
+   - Fallback: If APIs fail, return "Unverifiable: Check altnews.in, factcheck.org."
+
+### User Experience
+- **Landing (/)**: UI: "Don’t just check the news. Understand it." Input box (text/URL/image/video upload). Add-to-home-screen (manifest.json).
+- **Analysis**: Spinner: "🔎 Scraping content...", "🌐 Verifying claims...", "🧠 Synthesizing..." (<5s Tier 0/1, <15s Tier 2).
+- **Report Card**: Tailwind card: Score (18/100 🔴), Summary, Details (Source: 🟡 "Fake domain, no author", Fact-Check: 🔴 "Claim false, see rbi.org.in", Deepfake: 🔴 "AI-generated image, Sensity AI 95% confidence"). Share (Web Share API). Hindi toggle (translations.json).
+- **Mini-Game (/learn)**: Quiz (pick fake headline). Correct: Confetti (react-confetti), +50 XP. Pull from Supabase (quizzes).
+- **Dashboard (/dashboard)**: Supabase auth. Stats: "8 misleading articles." Heatmap: SVG pulsing dots (Maharashtra: red for scams, Supabase data).
+- **Offline**: Tier 0 works; "Offline—local data" banner.
+- **Inclusivity**: 2GB RAM, 480p, Web Speech API (Hindi/English).
+
+### Scenarios (2025 Best Verification)
+1. **X Post (Fake Claim)**: Scrape tweet, extract claim, Gemini search: "Verify [claim] on X, check InVID for origin." Sensity for media.
+2. **Instagram Image (Deepfake)**: Upload, Sensity AI: "Detect AI artifacts." Gemini Pro Vision: "Verify real news."
+3. **Facebook Video (Misinfo)**: OpenCV keyframes, InVID Verification: "Check edits/date." Gemini search: "Cross-reference real event."
+4. **News Outlet (Biased)**: Scrape, Google Fact Check Explorer: "Markup claims." Gemini: "Rate bias, recommend balanced sources."
+5. **Fake Source (UPI Scam)**: Scrape, ClaimBuster: "Extract/check claims." Gemini: "SRI low, verify with rbi.org.in."
+6. **Other**: Hoaxy for spread, TinEye for images, NewsGuard for site ratings (via search).
+
+### Replit Project Structure
+- **Root**: /frontend (Node.js), /backend (Python).
+- **Frontend**:
+  /frontend
+  ├── app/
+  │   ├── page.tsx               # Landing with input
+  │   ├── learn/page.tsx         # Mini-game
+  │   ├── dashboard/page.tsx     # Stats + heatmap
+  │   ├── layout.tsx             # Tailwind, lang toggle
+  ├── components/
+  │   ├── InputForm.tsx          # Text/URL/image/video input
+  │   ├── ReportCard.tsx         # JSON render, share
+  │   ├── MiniGame.tsx           # Quiz, confetti
+  │   ├── Heatmap.tsx            # SVG heatmap
+  ├── public/
+  │   ├── manifest.json          # PWA
+  │   ├── translations.json      # English/Hindi
+  │   ├── service-worker.js      # Offline
+  ├── utils/
+  │   ├── tier0.ts               # TensorFlow.js + IndexedDB
+  │   ├── api.ts                 # Fetch /analyze
+  ├── package.json               # Next.js, tailwind, tensorflowjs, idb-keyval, react-confetti, @supabase/supabase-js
+  ├── next.config.js             # PWA
+  ├── .env.local                 # Supabase keys
+- **Backend**:
+  /backend
+  ├── main.py                    # FastAPI /analyze with Gemini/OpenAI fallback
+  ├── requirements.txt           # fastapi, uvicorn, google-generativeai, openai, pinecone-client, supabase, redis, requests, beautifulsoup4, opencv-python, sensity-ai, inivid-verification
+  ├── seed.py                    # Seed Supabase/Pinecone (100 fakes, 10 quizzes)
+  ├── .env                       # API keys
+  ├── .replit                    # Run: uvicorn main:app --host 0.0.0.0 --port 8080
+- **README.md**: Setup (API keys), deploy (Vercel/Replit), seed data, demo (RBI scam flow).
+
+### Implementation Details
+- **Frontend**:
+  - Next.js: App Router, static export.
+  - PWA: manifest.json (name: "Satya", theme_color: "#3B82F6"), service-worker.js (cache app shell).
+  - InputForm: Textarea, file input (image/video), Web Speech API.
+  - ReportCard: Tailwind, JSON render, navigator.share().
+  - MiniGame: Supabase quiz fetch, react-confetti.
+  - Heatmap: SVG (Figma), CSS: .hotspot { animation: pulse 2s infinite; }.
+  - Tier 0: async tier0(content) { model = loadModel('MiniLM-L6-v2'); embedding = model.embed(content); return idb.getSimilar(embedding, 0.8); }.
+  - Hindi Toggle: const [lang, setLang] = useState('en'); load translations.json.
+- **Backend**:
+  - FastAPI /analyze:
+    async def analyze(content: str):
+      embedding = get_huggingface_embedding(content)
+      pinecone_match = query_pinecone(embedding)
+      if pinecone_match.score > 0.8:
+        cache_redis(pinecone_match, ttl=86400)
+        return pinecone_match.metadata
+      try:
+        report = await gemini_analyze(content)  # Gemini 1.5 Flash/Pro Vision with search
+      except Exception as e:
+        report = await gpt4omini_analyze(content)  # OpenAI with browsing
+      supabase.insert('report_cards', report)
+      cache_redis(report)
+      return report
+  - Gemini: google.generativeai.GenerativeModel('gemini-1.5-flash').generate_content("Search and verify [claim]...").
+  - OpenAI: openai.ChatCompletion.create(model="gpt-4o-mini", tools=[browsing_tool]).
+  - Verification: Google Fact Check Explorer API (requests.get('https://factchecktools.googleapis.com/v1alpha1/claims:search', params={'query': claim})).
+  - Social Media: InVID API for X/Instagram/Facebook (oEmbed + metadata), Sensity AI for deepfakes (requests.post('https://api.sensity.ai/v1/detect', json={image_url})).
+  - Multimodal: OpenCV (cv2.VideoCapture for keyframes), Hugging Face reverse search.
+- **Data**:
+  - Supabase: report_cards (id, score, status, summary, details JSON, timestamp), quizzes (id, question, options, correct, lang), fakes (id, embedding, metadata).
+  - Pinecone: "satya-fakes" (384D), 10K vectors.
+  - Seed: 100 fakes, 10 quizzes (BOOM Live JSON, Gemini-generated).
+- **Deployment**:
+  - Frontend: Vercel (GitHub) or Replit (npm run dev).
+  - Backend: Replit (uvicorn main:app --host 0.0.0.0 --port 8080).
+  - Cron: GitHub Actions to ping /analyze daily.
+- **Testing**: Emulator (2GB RAM), curl /analyze, mock APIs.
+
+### Deliverables
+1. Replit project (frontend/backend).
+2. File structure as above.
+3. README.md: Install, API keys, deploy, seed data, demo (RBI scam flow).
+4. Seed script (100 fakes, 10 quizzes).
+5. Mock data: RBI scam JSON, heatmap SVG.
+6. Demo: 2-min flow (WhatsApp URL → Report Card → Hindi toggle → mini-game).
+
+Ensure offline mode, multilingual UI, low-end optimization. No paid services. Use my Gemini and OpenAI API keys (in .env). Generate for Replit 2025 free tier.
